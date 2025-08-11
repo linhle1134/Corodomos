@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Subtitle Overlay - Suite Life</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .demo-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .demo-video {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(45deg, #333, #666);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        /* Subtitle Overlay - Same as main app */
+        .subtitle-overlay {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+            padding: 0 20px;
+        }
+
+        .subtitle-line {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            margin: 4px auto;
+            max-width: 80%;
+            font-size: 16px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .subtitle-line.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .subtitle-line.current {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .subtitle-line.translation {
+            font-size: 15px;
+            background: rgba(0, 178, 111, 0.9);
+            color: white;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            background: #00B26F;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background: #009960;
+        }
+        
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>🎬 Demo Subtitle Overlay - Suite Life</h1>
+        <p>Demo tính năng subtitle tự động chạy theo video giống như trong ảnh bạn gửi</p>
+        
+        <div class="video-container">
+            <div class="demo-video" id="demoVideo">
+                ▶ Click để bắt đầu demo
+            </div>
+            
+            <!-- Subtitle Overlay -->
+            <div class="subtitle-overlay" id="subtitleOverlay">
+                <div class="subtitle-line current" id="currentSubtitle"></div>
+                <div class="subtitle-line translation" id="currentTranslation"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="startDemo">Bắt đầu Demo</button>
+            <button class="btn" id="toggleTranslation">Ẩn/Hiện dịch</button>
+            <button class="btn" id="resetDemo">Reset</button>
+        </div>
+        
+        <div class="info">
+            <h3>✨ Tính năng Demo:</h3>
+            <ul>
+                <li>📺 Subtitle hiển thị overlay trên video</li>
+                <li>🔄 Tự động chạy theo timeline</li>
+                <li>🌍 Có cả tiếng Anh và tiếng Việt</li>
+                <li>🎯 Hiệu ứng fade in/out mượt mà</li>
+                <li>⚙️ Có thể bật/tắt dịch thuật</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Demo subtitles data
+        const demoSubtitles = [
+            { start: 0, end: 3, en: "Welcome to Suite Life of Zack and Cody!", vi: "Chào mừng đến với Suite Life của Zack và Cody!" },
+            { start: 3, end: 6, en: "Today, we will practice English together.", vi: "Hôm nay, chúng ta sẽ luyện tập tiếng Anh cùng nhau." },
+            { start: 6, end: 9, en: "You will hear me say them slowly and clearly.", vi: "Bạn sẽ nghe tôi nói chậm và rõ ràng." },
+            { start: 9, end: 12, en: "There will be a pause after each sentence.", vi: "Sẽ có một khoảng dừng sau mỗi câu." },
+            { start: 12, end: 15, en: "And that's your time to repeat after me.", vi: "Và đó là lúc bạn lặp lại theo tôi." },
+            { start: 15, end: 18, en: "Just follow the subtitles on the screen.", vi: "Chỉ cần theo dõi phụ đề trên màn hình." },
+            { start: 18, end: 21, en: "This practice is perfect for beginners.", vi: "Bài luyện tập này hoàn hảo cho người mới bắt đầu." },
+            { start: 21, end: 24, en: "Let's start learning English!", vi: "Hãy bắt đầu học tiếng Anh!" }
+        ];
+        
+        let currentTime = 0;
+        let isPlaying = false;
+        let showTranslation = true;
+        let demoInterval;
+        
+        const demoVideo = document.getElementById('demoVideo');
+        const currentSubtitle = document.getElementById('currentSubtitle');
+        const currentTranslation = document.getElementById('currentTranslation');
+        const startDemoBtn = document.getElementById('startDemo');
+        const toggleTranslationBtn = document.getElementById('toggleTranslation');
+        const resetDemoBtn = document.getElementById('resetDemo');
+        
+        function updateSubtitleOverlay() {
+            const activeSub = demoSubtitles.find(sub => 
+                currentTime >= sub.start && currentTime < sub.end
+            );
+            
+            if (activeSub) {
+                // Show English subtitle
+                currentSubtitle.textContent = activeSub.en;
+                currentSubtitle.classList.add('active');
+                
+                // Show Vietnamese translation if enabled
+                if (showTranslation && activeSub.vi) {
+                    currentTranslation.textContent = activeSub.vi;
+                    currentTranslation.classList.add('active');
+                } else {
+                    currentTranslation.classList.remove('active');
+                }
+            } else {
+                currentSubtitle.classList.remove('active');
+                currentTranslation.classList.remove('active');
+            }
+        }
+        
+        function startDemo() {
+            if (isPlaying) return;
+            
+            isPlaying = true;
+            demoVideo.textContent = '🎬 Demo đang chạy...';
+            startDemoBtn.textContent = 'Đang chạy...';
+            startDemoBtn.disabled = true;
+            
+            demoInterval = setInterval(() => {
+                currentTime += 0.1;
+                updateSubtitleOverlay();
+                
+                if (currentTime >= 24) {
+                    clearInterval(demoInterval);
+                    isPlaying = false;
+                    demoVideo.textContent = '✅ Demo hoàn thành!';
+                    startDemoBtn.textContent = 'Chạy lại Demo';
+                    startDemoBtn.disabled = false;
+                }
+            }, 100);
+        }
+        
+        function resetDemo() {
+            clearInterval(demoInterval);
+            isPlaying = false;
+            currentTime = 0;
+            demoVideo.textContent = '▶ Click để bắt đầu demo';
+            startDemoBtn.textContent = 'Bắt đầu Demo';
+            startDemoBtn.disabled = false;
+            currentSubtitle.classList.remove('active');
+            currentTranslation.classList.remove('active');
+        }
+        
+        startDemoBtn.addEventListener('click', startDemo);
+        demoVideo.addEventListener('click', startDemo);
+        
+        toggleTranslationBtn.addEventListener('click', () => {
+            showTranslation = !showTranslation;
+            toggleTranslationBtn.textContent = showTranslation ? 'Ẩn dịch' : 'Hiện dịch';
+            updateSubtitleOverlay();
+        });
+        
+        resetDemoBtn.addEventListener('click', resetDemo);
+        
+        console.log('🎯 Demo Subtitle Overlay ready!');
+    </script>
+</body>
+</html>

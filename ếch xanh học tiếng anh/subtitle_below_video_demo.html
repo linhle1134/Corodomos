@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Subtitle Below Video - Suite Life</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .demo-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .video-container {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .demo-video {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .demo-video::before {
+            content: "LEARN ENGLISH EFFORTLESSLY";
+            position: absolute;
+            top: 50px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        /* Subtitle Display Area (Below Video) - Like in image */
+        .subtitle-display-area {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .current-subtitle-container {
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .current-subtitle-line {
+            margin: 8px 0;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .current-subtitle-line.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .current-subtitle-line.en {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            background: #fff;
+            border: 2px solid #00B26F;
+            box-shadow: 0 2px 8px rgba(0,178,111,0.1);
+        }
+
+        .current-subtitle-line.vi {
+            font-size: 16px;
+            font-weight: 500;
+            color: #ffffff;
+            background: #00B26F;
+            box-shadow: 0 2px 8px rgba(0,178,111,0.2);
+        }
+
+        .current-subtitle-line.hidden {
+            display: none;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            background: #00B26F;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background: #009960;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            height: 6px;
+            border-radius: 3px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: #00B26F;
+            height: 100%;
+            width: 0%;
+            border-radius: 3px;
+            transition: width 0.1s ease;
+        }
+        
+        .time-display {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>🎬 Demo Subtitle Display - Suite Life Style</h1>
+        <p>Demo subtitle hiển thị bên dưới video, giống như trong ảnh bạn gửi</p>
+        
+        <!-- Video Container -->
+        <div class="video-container">
+            <div class="demo-video" id="demoVideo">
+                ▶ Click để bắt đầu demo
+            </div>
+        </div>
+        
+        <!-- Subtitle Display Area (Below Video) -->
+        <div class="subtitle-display-area" id="subtitleDisplayArea">
+            <div class="current-subtitle-container">
+                <div class="current-subtitle-line en" id="currentSubtitleEn">Click "Bắt đầu Demo" để xem subtitle</div>
+                <div class="current-subtitle-line vi" id="currentSubtitleVi">Nhấp "Bắt đầu Demo" để xem phụ đề</div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="time-display" id="timeDisplay">0:00 / 0:24</div>
+        
+        <div class="controls">
+            <button class="btn" id="startDemo">Bắt đầu Demo</button>
+            <button class="btn" id="toggleTranslation">Ẩn/Hiện dịch</button>
+            <button class="btn" id="resetDemo">Reset</button>
+        </div>
+        
+        <div class="info">
+            <h3>✨ Tính năng như trong ảnh:</h3>
+            <ul>
+                <li>📺 Video ở trên</li>
+                <li>📝 Subtitle hiển thị riêng bên dưới</li>
+                <li>🇺🇸 Tiếng Anh (dòng trên, viền xanh)</li>
+                <li>🇻🇳 Tiếng Việt (dòng dưới, nền xanh)</li>
+                <li>🔄 Tự động chạy theo timeline</li>
+                <li>⚙️ Có thể bật/tắt dịch thuật</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Demo subtitles data
+        const demoSubtitles = [
+            { start: 0, end: 3, en: "Listen, learn, and improve your English effortlessly.", vi: "Nghe, học và cải thiện tiếng Anh của bạn một cách dễ dàng." },
+            { start: 3, end: 6, en: "Today, we will practice 30 simple sentences.", vi: "Hôm nay, chúng ta sẽ luyện tập 30 câu đơn giản." },
+            { start: 6, end: 9, en: "You will hear me say them slowly, clearly in a British accent.", vi: "Bạn sẽ nghe tôi nói chậm, rõ ràng với giọng Anh." },
+            { start: 9, end: 12, en: "There will be a pause.", vi: "Sẽ có một khoảng dừng." },
+            { start: 12, end: 15, en: "And that's your time to repeat after me.", vi: "Và đó là lúc bạn lặp lại theo tôi." },
+            { start: 15, end: 18, en: "Just follow the subtitles on the screen.", vi: "Chỉ cần theo dõi phụ đề trên màn hình." },
+            { start: 18, end: 21, en: "Watch for the highlighted words.", vi: "Chú ý những từ được tô sáng." },
+            { start: 21, end: 24, en: "They'll guide you. And speak out loud.", vi: "Chúng sẽ hướng dẫn bạn. Và hãy nói to." }
+        ];
+        
+        let currentTime = 0;
+        let isPlaying = false;
+        let showTranslation = true;
+        let demoInterval;
+        
+        const demoVideo = document.getElementById('demoVideo');
+        const currentSubtitleEn = document.getElementById('currentSubtitleEn');
+        const currentSubtitleVi = document.getElementById('currentSubtitleVi');
+        const startDemoBtn = document.getElementById('startDemo');
+        const toggleTranslationBtn = document.getElementById('toggleTranslation');
+        const resetDemoBtn = document.getElementById('resetDemo');
+        const progressFill = document.getElementById('progressFill');
+        const timeDisplay = document.getElementById('timeDisplay');
+        
+        function updateSubtitleDisplay() {
+            const activeSub = demoSubtitles.find(sub => 
+                currentTime >= sub.start && currentTime < sub.end
+            );
+            
+            if (activeSub) {
+                // Show English subtitle
+                currentSubtitleEn.textContent = activeSub.en;
+                currentSubtitleEn.classList.add('active');
+                
+                // Show Vietnamese translation if enabled
+                if (showTranslation && activeSub.vi) {
+                    currentSubtitleVi.textContent = activeSub.vi;
+                    currentSubtitleVi.classList.remove('hidden');
+                    currentSubtitleVi.classList.add('active');
+                } else {
+                    currentSubtitleVi.classList.add('hidden');
+                    currentSubtitleVi.classList.remove('active');
+                }
+            } else {
+                currentSubtitleEn.classList.remove('active');
+                currentSubtitleVi.classList.remove('active');
+            }
+            
+            // Update progress
+            const progress = (currentTime / 24) * 100;
+            progressFill.style.width = progress + '%';
+            
+            // Update time
+            const mins = Math.floor(currentTime / 60);
+            const secs = Math.floor(currentTime % 60);
+            timeDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')} / 0:24`;
+        }
+        
+        function startDemo() {
+            if (isPlaying) return;
+            
+            isPlaying = true;
+            demoVideo.textContent = '🎬 Demo đang chạy...';
+            startDemoBtn.textContent = 'Đang chạy...';
+            startDemoBtn.disabled = true;
+            
+            demoInterval = setInterval(() => {
+                currentTime += 0.1;
+                updateSubtitleDisplay();
+                
+                if (currentTime >= 24) {
+                    clearInterval(demoInterval);
+                    isPlaying = false;
+                    demoVideo.textContent = '✅ Demo hoàn thành!';
+                    startDemoBtn.textContent = 'Chạy lại Demo';
+                    startDemoBtn.disabled = false;
+                }
+            }, 100);
+        }
+        
+        function resetDemo() {
+            clearInterval(demoInterval);
+            isPlaying = false;
+            currentTime = 0;
+            demoVideo.textContent = '▶ Click để bắt đầu demo';
+            startDemoBtn.textContent = 'Bắt đầu Demo';
+            startDemoBtn.disabled = false;
+            
+            currentSubtitleEn.textContent = 'Click "Bắt đầu Demo" để xem subtitle';
+            currentSubtitleVi.textContent = 'Nhấp "Bắt đầu Demo" để xem phụ đề';
+            currentSubtitleEn.classList.add('active');
+            currentSubtitleVi.classList.add('active');
+            
+            progressFill.style.width = '0%';
+            timeDisplay.textContent = '0:00 / 0:24';
+        }
+        
+        startDemoBtn.addEventListener('click', startDemo);
+        demoVideo.addEventListener('click', startDemo);
+        
+        toggleTranslationBtn.addEventListener('click', () => {
+            showTranslation = !showTranslation;
+            toggleTranslationBtn.textContent = showTranslation ? 'Ẩn dịch' : 'Hiện dịch';
+            updateSubtitleDisplay();
+        });
+        
+        resetDemoBtn.addEventListener('click', resetDemo);
+        
+        // Initialize
+        currentSubtitleEn.classList.add('active');
+        currentSubtitleVi.classList.add('active');
+        
+        console.log('🎯 Demo Subtitle Below Video ready!');
+    </script>
+</body>
+</html>
